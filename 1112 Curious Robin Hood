@@ -1,0 +1,87 @@
+import java.io.*;
+import java.util.StringTokenizer;
+
+public class Main {
+static int  P = 0;
+    public static void main(String[] args) throws IOException {
+	// write your code here
+        //this is a basix fenwick tree
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        PrintWriter pw =new PrintWriter(new OutputStreamWriter(System.out));
+        int  T= Integer.parseInt(br.readLine());
+        while (T-->0){
+            StringTokenizer st  = new StringTokenizer(br.readLine());
+            int n = Integer.parseInt(st.nextToken());
+            FenwickTree ft  =  new FenwickTree(n);
+            int q = Integer.parseInt(st.nextToken());
+            //next is to do point update
+            st = new StringTokenizer(br.readLine());
+            for (int i=1;i<=n;i++){
+                ft.add(i,Integer.parseInt(st.nextToken()));
+            }
+            pw.println("Case "+(++P)+":");
+            while (q-->0){
+                st = new StringTokenizer(br.readLine());
+                int k = Integer.parseInt(st.nextToken());
+                if (k==1){
+                    int index = Integer.parseInt(st.nextToken())+1;
+                  pw.println(ft.getAsingleStack(index));
+                }else if (k==2){
+                    int index= Integer.parseInt(st.nextToken())+1;
+                    int v  = Integer.parseInt(st.nextToken());
+                    ft.add(index,v);
+                }else{
+                    int ith = Integer.parseInt(st.nextToken())+1;
+                    int jth = Integer.parseInt(st.nextToken())+1;
+                    pw.println( ft.sum(ith,jth));
+                }
+            }
+        }
+pw.flush();
+    }
+    static  class FenwickTree{
+        int[] tree;
+        FenwickTree(int n ){
+           tree = new int[n+1];
+        }
+        static int lsb(int i){
+            return i&-i;
+        }
+        //add k to index i on ebase
+        public void add(int index,int k){
+            //point udpate move on the lsb tree
+            while (index<tree.length){
+                tree[index]+=k;
+                //find all cell responsibleity for the index
+                index+=lsb(index);
+            }
+        }
+        public int getAsingleStack(int index){
+            int val  = sum(index,index);
+            while (index<tree.length){
+                tree[index]-=val;
+                index+=lsb(index);
+            }
+            return val;
+        }
+        void set(int index, int k){
+            int val = sum(index,index);
+        }
+        int sum(int i,int j){
+            if (j<i) return -1;
+            return (int) (prefixSum(j)-prefixSum(i-1));
+        }
+
+
+        //copmute the prefix usm from [1,i], one bases
+        // and i and k must be index value
+        public long prefixSum(int i){
+            int sum = 0;
+            while (i>0){
+                sum+=tree[i];
+                i&=~lsb(i);// i-=lsb(i);
+            }
+            return sum;
+        }
+    }
+}
